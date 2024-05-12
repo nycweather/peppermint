@@ -8,7 +8,7 @@ on:
 
 jobs:
   greeting:
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Greeting
         run: echo "Hello, world!"
