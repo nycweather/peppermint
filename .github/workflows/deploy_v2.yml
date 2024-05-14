@@ -35,3 +35,9 @@ jobs:
           mkdir -p /home/runner/.ssh
           ssh-keygen -t rsa -b 2048 -f /home/runner/.ssh/google_compute_engine -q -N ""
           gcloud compute os-login ssh-keys add --key-file=/home/runner/.ssh/google_compute_engine.pub
+
+      - name: Create demo test file
+        run: echo "This is a demo test file." > demo_test.txt
+
+      - name: Transfer demo test file to Compute Engine
+        run: gcloud compute scp ./demo_test.txt spring-boot-instance:/home/alifftwspam2/code --zone us-east1-b
