@@ -37,8 +37,5 @@ jobs:
         run: |
           gcloud compute ssh github-actions-service-account@spring-boot-instance --zone us-east1-b --command "echo SSH key generated"
 
-      - name: Wait for SSH key propagation
-        run: sleep 60
-
       - name: Transfer demo test file to Compute Engine
         run: gcloud compute scp ./demo_test.txt github-actions-service-account@spring-boot-instance:/home/github-actions-service-account/code --zone us-east1-b
