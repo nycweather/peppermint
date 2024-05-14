@@ -24,18 +24,34 @@ jobs:
         with:
           version: '>= 363.0.0'
 
-      - name: 'Use gcloud CLI'
-        run: 'gcloud info'
+      - name: 'Get GitHub runner IP address'
+        id: runner_ip
+        run: echo "RUNNER_IP=$(curl -s https://checkip.amazonaws.com)" >> $GITHUB_ENV
 
-      - name: 'See active compute instances'
-        run: 'gcloud compute instances list'
+      - name: 'Allow SSH from GitHub runner IP'
+        run: |
+          gcloud compute firewall-rules create allow-ssh-from-github-runner \
+            --direction=INGRESS \
+            --priority=1000 \
+            --network=vpc-network \
+            --action=ALLOW \
+            --rules=tcp:22 \
+            --source-ranges=${{ env.RUNNER_IP }}
 
-      - name: Create demo test file
-        run: echo "This is a demo test file." > demo_test.txt
+      - name: 'Create demo test file'
+        run: echo "This is a demo test file 5/14/2024 7:07pm." > demo_test.txt
 
-      - name: Generate SSH key
+      - name: 'Generate SSH key'
         run: |
           gcloud compute ssh github-actions-service-account@spring-boot-instance --zone us-east1-b --command "echo SSH key generated"
 
-      - name: Transfer demo test file to Compute Engine
-        run: gcloud compute scp ./demo_test.txt github-actions-service-account@spring-boot-instance:/home/github-actions-service-account/code --zone us-east1-b
+      - name: 'Wait for SSH key propagation'
+        run: sleep 120  # Increased waiting time
+
+      - name: 'Transfer demo test file to Compute Engine'
+        run: gcloud compute scp ./demo_test.txt github-actions-service-account@spring-boot-instance:/home/github-actions-service-account/demo1.txt --zone us-east1-b
+
+      - name: 'Remove SSH access from GitHub runner IP'
+        if: always()
+        run: |
+          gcloud compute firewall-rules delete allow-ssh-from-github-runner -q
