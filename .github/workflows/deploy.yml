@@ -27,11 +27,17 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      #      - name: Authenticate GCP account and set project
+      #        run: |
+      #          echo "${{ secrets.GCP_SA_KEY }}" > gcp-key.json
+      #          gcloud auth activate-service-account ${{ secrets.GCP_SA }} \
+      #          --key-file=gcp-key.json --project=${{ secrets.GCP_PROJECT_ID }}
+      #          gcloud auth list
+
       - name: Authenticate GCP account and set project
         run: |
-          echo "${{ secrets.GCP_SA_KEY }}" > gcp-key.json
-          gcloud auth activate-service-account ${{ secrets.GCP_SA }} \
-          --key-file=gcp-key.json --project=${{ secrets.GCP_PROJECT_ID }}
+          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
           gcloud auth list
 
       - name: Verify GCP Authentication
