@@ -29,7 +29,7 @@ jobs:
 
       - name: Authenticate GCP account and set project
         run: |
-          gcloud auth activate-service-account ${{ secrets.GCP_SA }}
+          gcloud auth activate-service-account ${{ secrets.GCP_SA }} \
           --key-file=${{ secrets.GCP_SA_KEY }} --project=${{ secrets.GCP_PROJECT_ID }}
           gcloud auth list
 
