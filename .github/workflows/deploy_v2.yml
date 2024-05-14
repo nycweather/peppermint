@@ -41,4 +41,4 @@ jobs:
         run: echo "This is a demo test file." > demo_test.txt
 
       - name: Transfer demo test file to Compute Engine
-        run: gcloud compute scp ./demo_test.txt alifftwspam2@spring-boot-instance:/home/alifftwspam2/code --zone us-east1-b
+        run: gcloud compute scp ./demo_test.txt github-actions-service-account@spring-boot-instance:/home/github-actions-service-account/code --zone us-east1-b
