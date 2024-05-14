@@ -1,79 +1,79 @@
-name: Deploy to Google Compute Engine
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  setup-build-publish-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Build with Maven
-        run: mvn clean install package -DskipTests
-
-      - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-      #      - name: Authenticate GCP account and set project
-      #        run: |
-      #          echo "${{ secrets.GCP_SA_KEY }}" > gcp-key.json
-      #          gcloud auth activate-service-account ${{ secrets.GCP_SA }} \
-      #          --key-file=gcp-key.json --project=${{ secrets.GCP_PROJECT_ID }}
-      #          gcloud auth list
-
-      #      - name: Authenticate GCP account and set project
-      #        run: |
-      #          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
-      #          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-      #          gcloud auth list
-      - name: 'Use gcloud CLI'
-        run: 'gcloud info'
-
-      - name: Verify GCP Authentication
-        run: |
-          if gcloud auth list | grep -q 'No credentialed accounts.'; then
-            echo "Authentication failed."
-            exit 1
-          else
-            echo "Authentication successful."
-          fi
-
-      #      - name: Prepare SSH keys for gcloud
-      #        run: |
-      #          mkdir -p /home/runner/.ssh
-      #          ssh-keygen -t rsa -b 2048 -f /home/runner/.ssh/google_compute_engine -q -N ""
-      #          gcloud compute os-login ssh-keys add --key-file=/home/runner/.ssh/google_compute_engine.pub
-      #
-      #      #      - name: Transfer jar to Compute Engine
-      #      #        run: gcloud compute scp ./target/peppermint.jar spring-boot-instance:/path/to/destination --zone us-east1-b
-      #      - name: Create demo test file
-      #        run: echo "This is a demo test file." > demo_test.txt
-      #
-      #      - name: Transfer demo test file to Compute Engine
-      #        run: gcloud compute scp ./demo_test.txt spring-boot-instance:/home/alifftwspam2/code --zone us-east1-b
-
-      - name: Authenticate and Configure Cloud SDK
-        run: |
-          echo "${{ secrets.GCP_SA_KEY }}" | gcloud auth activate-service-account --key-file=-
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          gcloud auth list
-
-      - name: Prepare SSH keys and add to GCE
-        run: |
-          mkdir -p /home/runner/.ssh
-          ssh-keygen -t rsa -b 2048 -f /home/runner/.ssh/google_compute_engine -q -N ""
-          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
-          gcloud compute os-login ssh-keys add --key-file=/home/runner/.ssh/google_compute_engine.pub
+#name: Deploy to Google Compute Engine
+#
+#on:
+#  push:
+#    branches: [ main ]
+#
+#jobs:
+#  setup-build-publish-deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#          cache: maven
+#
+#      - name: Build with Maven
+#        run: mvn clean install package -DskipTests
+#
+#      - name: Set up Google Cloud SDK
+#        uses: google-github-actions/setup-gcloud@v2
+#        with:
+#          service_account_key: ${{ secrets.GCP_SA_KEY }}
+#          project_id: ${{ secrets.GCP_PROJECT_ID }}
+#
+#      #      - name: Authenticate GCP account and set project
+#      #        run: |
+#      #          echo "${{ secrets.GCP_SA_KEY }}" > gcp-key.json
+#      #          gcloud auth activate-service-account ${{ secrets.GCP_SA }} \
+#      #          --key-file=gcp-key.json --project=${{ secrets.GCP_PROJECT_ID }}
+#      #          gcloud auth list
+#
+#      #      - name: Authenticate GCP account and set project
+#      #        run: |
+#      #          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
+#      #          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+#      #          gcloud auth list
+#      - name: 'Use gcloud CLI'
+#        run: 'gcloud info'
+#
+#      - name: Verify GCP Authentication
+#        run: |
+#          if gcloud auth list | grep -q 'No credentialed accounts.'; then
+#            echo "Authentication failed."
+#            exit 1
+#          else
+#            echo "Authentication successful."
+#          fi
+#
+#      #      - name: Prepare SSH keys for gcloud
+#      #        run: |
+#      #          mkdir -p /home/runner/.ssh
+#      #          ssh-keygen -t rsa -b 2048 -f /home/runner/.ssh/google_compute_engine -q -N ""
+#      #          gcloud compute os-login ssh-keys add --key-file=/home/runner/.ssh/google_compute_engine.pub
+#      #
+#      #      #      - name: Transfer jar to Compute Engine
+#      #      #        run: gcloud compute scp ./target/peppermint.jar spring-boot-instance:/path/to/destination --zone us-east1-b
+#      #      - name: Create demo test file
+#      #        run: echo "This is a demo test file." > demo_test.txt
+#      #
+#      #      - name: Transfer demo test file to Compute Engine
+#      #        run: gcloud compute scp ./demo_test.txt spring-boot-instance:/home/alifftwspam2/code --zone us-east1-b
+#
+#      - name: Authenticate and Configure Cloud SDK
+#        run: |
+#          echo "${{ secrets.GCP_SA_KEY }}" | gcloud auth activate-service-account --key-file=-
+#          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+#          gcloud auth list
+#
+#      - name: Prepare SSH keys and add to GCE
+#        run: |
+#          mkdir -p /home/runner/.ssh
+#          ssh-keygen -t rsa -b 2048 -f /home/runner/.ssh/google_compute_engine -q -N ""
+#          gcloud auth activate-service-account --key-file=${{ secrets.GCP_SA_KEY }}
+#          gcloud compute os-login ssh-keys add --key-file=/home/runner/.ssh/google_compute_engine.pub
