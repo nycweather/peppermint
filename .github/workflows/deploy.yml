@@ -1,4 +1,4 @@
-name: Deploy to google compute engine
+name: Deploy to Google Compute Engine
 
 on:
   push:
@@ -27,9 +27,14 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Transfer jar to Compute Engine
-        run: gcloud compute scp ./target/peppermint.jar spring-boot-instance:/path/to/destination --zone us-east1-b
+      - name: Authenticate GCP account
+        run: gcloud auth list
 
-      - name: SSH and Execute jar on VM
+      - name: Verify GCP Authentication
         run: |
-          gcloud compute ssh spring-boot-instance --zone us-east1-b --command="nohup java -jar /path/to/destination/peppermint.jar &"
+          if gcloud auth list | grep -q 'No credentialed accounts.'; then
+            echo "Authentication failed."
+            exit 1
+          else
+            echo "Authentication successful."
+          fi
