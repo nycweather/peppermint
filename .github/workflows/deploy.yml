@@ -27,8 +27,11 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Authenticate GCP account
-        run: gcloud auth list
+      - name: Authenticate GCP account and set project
+        run: |
+          gcloud auth activate-service-account ${{ secrets.GCP_SA }}
+          --key-file=${{ secrets.GCP_SA_KEY }} --project=${{ secrets.GCP_PROJECT_ID }}
+          gcloud auth list
 
       - name: Verify GCP Authentication
         run: |
@@ -38,6 +41,7 @@ jobs:
           else
             echo "Authentication successful."
           fi
+
       - name: Prepare SSH keys for gcloud
         run: |
           mkdir -p /home/runner/.ssh
