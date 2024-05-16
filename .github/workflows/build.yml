@@ -2,7 +2,6 @@ name: build and test
 
 on:
   pull_request:
-    branches: [ main, dev ]
 
 jobs:
   build:
@@ -30,5 +29,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Build with Maven
+
+      - name: Run Tests with Maven
         run: mvn -B test --file pom.xml
