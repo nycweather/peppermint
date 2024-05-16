@@ -9,13 +9,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @WebMvcTest(LandingPageController.class)
-public class LandingPageControllerTest {
+class LandingPageControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void testSayHello() throws Exception {
+    void testSayHello() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/hello")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
