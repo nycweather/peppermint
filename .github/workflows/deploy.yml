@@ -1,7 +1,7 @@
-name: Deploy v2
+name: Deploy to GCE
 
 on:
-  push:
+  pull_request:
     branches: [ create-actions ]
 
 jobs:
@@ -47,9 +47,6 @@ jobs:
             --action=ALLOW \
             --rules=tcp:22 \
             --source-ranges=${{ env.RUNNER_IP }}
-
-      - name: 'Create demo test file'
-        run: echo "This is a demo test file 5/14/2024 7:07pm." > demo_test.txt
 
       - name: 'Generate SSH key'
         run: |
