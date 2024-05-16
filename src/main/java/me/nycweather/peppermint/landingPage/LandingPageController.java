@@ -10,8 +10,8 @@ import java.util.Map;
 @RestController
 public class LandingPageController {
 
-    @GetMapping
-    public ResponseEntity<Map<String, String>> sayHello(){
+    @GetMapping("/hello")
+    public ResponseEntity<Map<String, String>> sayHello() {
         return new ResponseEntity<>(Map.of("message", "Hello, World!"), HttpStatus.OK);
     }
 }
