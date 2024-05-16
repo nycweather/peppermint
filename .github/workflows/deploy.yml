@@ -2,7 +2,7 @@ name: Deploy to GCE
 
 on:
   pull_request:
-    branches: [ create-actions ]
+    branches: [ main, create-actions ]
 
 jobs:
   setup-build-publish-deploy:
