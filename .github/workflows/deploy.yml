@@ -50,10 +50,10 @@ jobs:
 
       - name: 'Generate SSH key'
         run: |
-          gcloud compute ssh github-actions-service-account@spring-boot-instance --zone us-east1-b --command "echo SSH key generated"
+          gcloud compute ssh ${{ secrets.GCP_SA_NAME }}@${{ secrets.GCP_COMPUTE_INSTANCE_NAME }} --zone ${{ secrets.GCP_ZONE }} --command "echo SSH key generated"
 
       - name: Copy files to GCE instance
-        run: gcloud compute scp target/*.jar github-actions-service-account@spring-boot-instance:~/app.jar --zone us-east1-b
+        run: gcloud compute scp target/*.jar ${{ secrets.GCP_SA_NAME }}@${{ secrets.GCP_COMPUTE_INSTANCE_NAME }}:~/app.jar --zone ${{ secrets.GCP_ZONE }}
 
       - name: 'Remove SSH access from GitHub runner IP'
         if: always()
