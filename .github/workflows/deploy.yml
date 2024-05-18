@@ -55,6 +55,10 @@ jobs:
       - name: Copy files to GCE instance
         run: gcloud compute scp target/*.jar ${{ secrets.GCP_SA_NAME }}@${{ secrets.GCP_COMPUTE_INSTANCE_NAME }}:~/app.jar --zone ${{ secrets.GCP_ZONE }}
 
+      - name: 'Restart the instance'
+        run: |
+          gcloud compute instances reset ${{ secrets.GCP_COMPUTE_INSTANCE_NAME }} --zone ${{ secrets.GCP_ZONE }}
+
       - name: 'Remove SSH access from GitHub runner IP'
         if: always()
         run: |
