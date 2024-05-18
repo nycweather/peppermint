@@ -17,7 +17,7 @@ class LandingPageControllerTest {
 
     @Test
     void testSayHello() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/hello")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/hello")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Hello, World!"));
