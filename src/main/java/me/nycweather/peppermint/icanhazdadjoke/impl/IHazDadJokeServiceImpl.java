@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.nycweather.peppermint.icanhazdadjoke.config.WebClientConfig;
 import me.nycweather.peppermint.icanhazdadjoke.model.DadJoke;
 import me.nycweather.peppermint.icanhazdadjoke.service.IHazDadJokeService;
+import org.springframework.ai.chat.ChatClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,15 @@ import java.util.Map;
 @Service
 public class IHazDadJokeServiceImpl implements IHazDadJokeService {
 
-    private final WebClientConfig webClientBuilder;
+    @Value("${spring.ai.openai.chat.options.model}")
+    private String model;
 
-    public IHazDadJokeServiceImpl(WebClientConfig webClientBuilder) {
+    private final WebClientConfig webClientBuilder;
+    private final ChatClient chatClient;
+
+    public IHazDadJokeServiceImpl(WebClientConfig webClientBuilder, ChatClient chatClient) {
         this.webClientBuilder = webClientBuilder;
+        this.chatClient = chatClient;
     }
 
     @Override
@@ -35,7 +42,10 @@ public class IHazDadJokeServiceImpl implements IHazDadJokeService {
             ObjectMapper objectMapper = new ObjectMapper();
             DadJoke dadJoke = objectMapper.readValue(dadJokeRaw, DadJoke.class);
             log.info("Dad joke fetched successfully, with joke: {} & status {}", dadJoke.getJoke(), dadJoke.getStatus());
-            return new ResponseEntity<>(Map.of("message", dadJoke.getJoke()), HttpStatus.OK);
+            log.info("Calling openAI api, current model: {}", model);
+            String response = chatClient.call("Explain this joke to me: " + dadJoke.getJoke());
+            log.info("OpenAI api called successfully");
+            return new ResponseEntity<>(Map.of("message", dadJoke.getJoke(), "explanation", response), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error getting dad joke", e);
         }
