@@ -45,7 +45,7 @@ public class IHazDadJokeServiceImpl implements IHazDadJokeService {
             log.info("Calling openAI api, current model: {}", model);
             String response = chatClient.call("Explain this joke to me: " + dadJoke.getJoke());
             log.info("OpenAI api called successfully");
-            return new ResponseEntity<>(Map.of("message", dadJoke.getJoke(), "explanation", response), HttpStatus.OK);
+            return new ResponseEntity<>(Map.of("message", dadJoke.getJoke(), "explanation", response, "model", model), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Error getting dad joke", e);
         }
