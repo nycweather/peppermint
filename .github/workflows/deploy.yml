@@ -67,7 +67,7 @@ jobs:
 
       - name: Verify checksum on GCE instance
         run: |
-          gcloud compute ssh ${{ secrets.GCP_SA_NAME }}@${{ secrets.GCP_COMPUTE_INSTANCE_NAME }} --zone ${{ secrets.GCP_ZONE }} --command "sha256sum ~/app.jar | awk '{ print $1 }' > checksum_remote.txt"
+          gcloud compute ssh ${{ secrets.GCP_SA_NAME }}@${{ secrets.GCP_COMPUTE_INSTANCE_NAME }} --zone ${{ secrets.GCP_ZONE }} --command "sha256sum ~/app.jar | awk '{ print \$1 }' > checksum_remote.txt"
           gcloud compute scp ${{ secrets.GCP_SA_NAME }}@${{ secrets.GCP_COMPUTE_INSTANCE_NAME }}:~/checksum_remote.txt . --zone ${{ secrets.GCP_ZONE }}
           if diff -q checksum_local.txt checksum_remote.txt; then
             echo "Checksums match."
