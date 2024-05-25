@@ -72,6 +72,10 @@ jobs:
           if diff -q checksum_local.txt checksum_remote.txt; then
             echo "Checksums match."
           else
+            echo "Local checksum:"
+            cat checksum_local.txt
+            echo "Remote checksum:"
+            cat checksum_remote.txt
             echo "Checksums do not match!" && exit 1
           fi
 
