@@ -1,0 +1,34 @@
+services:
+  spring-boot-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.spring-boot
+    image: spring-boot-api:latest
+    container_name: spring-boot-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlite-cache
+
+  sqlite-cache:
+    image: sqlite:latest
+    container_name: sqlite-cache
+    ports:
+      - "5432:5432"
+    volumes:
+      - sqlite-cache:/data
+
+  nginx-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    image: nginx-server:latest
+    container_name: nginx-server
+    ports:
+      - "80:80"
+    depends_on:
+      - spring-boot-api
+
+volumes:
+  sqlite-cache:
+
