@@ -8,15 +8,15 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - sqlite-cache
+      - redis-cache
 
-  sqlite-cache:
-    image: sqlite:latest
-    container_name: sqlite-cache
+  redis-cache:
+    image: redis:latest
+    container_name: redis-cache
     ports:
       - "5432:5432"
     volumes:
-      - sqlite-cache:/data
+      - redis-cache:/data
 
   nginx-server:
     build:
@@ -30,5 +30,5 @@ services:
       - spring-boot-api
 
 volumes:
-  sqlite-cache:
+  redis-cache:
 
