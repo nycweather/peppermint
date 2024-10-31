@@ -1,0 +1,243 @@
+.
+├── conf.d
+├── fastcgi.conf
+├── fastcgi_params
+├── koi-utf
+├── koi-win
+├── mime.types
+├── modules-available
+├── modules-enabled
+├── nginx.conf
+├── proxy_params
+├── scgi_params
+├── sites-available
+│   ├── default
+│   └── nycweather.me
+├── sites-enabled
+│   ├── default -> /etc/nginx/sites-available/default
+│   └── nycweather.me -> /etc/nginx/sites-available/nycweather.me
+├── snippets
+│   ├── fastcgi-php.conf
+│   └── snakeoil.conf
+├── uwsgi_params
+└── win-utf
+
+## install curl ping
+apt-get update && \
+    apt-get install -y iputils-ping curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# cat default
+server {
+    listen 80;
+    server_name 35.237.207.240;
+
+    location /api/v1/ {
+        proxy_pass http://127.0.0.1:8080/api/v1/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Optionally, add configurations for other locations or root if needed
+    location / {
+        proxy_pass http://127.0.0.1:8080/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+# cat nycweather.me
+server {
+    listen 80;
+    server_name nycweather.me www.nycweather.me;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Redirect HTTP to HTTPS
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name nycweather.me www.nycweather.me;
+
+    ssl_certificate /etc/letsencrypt/live/nycweather.me/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/nycweather.me/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+
+# cat nginx.conf
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+error_log /var/log/nginx/error.log;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+	worker_connections 768;
+	# multi_accept on;
+}
+
+http {
+
+	##
+	# Basic Settings
+	##
+
+	sendfile on;
+	tcp_nopush on;
+	types_hash_max_size 2048;
+	# server_tokens off;
+
+	# server_names_hash_bucket_size 64;
+	# server_name_in_redirect off;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	##
+	# SSL Settings
+	##
+
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
+	ssl_prefer_server_ciphers on;
+
+	##
+	# Logging Settings
+	##
+
+	access_log /var/log/nginx/access.log;
+
+	##
+	# Gzip Settings
+	##
+
+	gzip on;
+
+	# gzip_vary on;
+	# gzip_proxied any;
+	# gzip_comp_level 6;
+	# gzip_buffers 16 8k;
+	# gzip_http_version 1.1;
+	# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+	##
+	# Virtual Host Configs
+	##
+
+	include /etc/nginx/conf.d/*.conf;
+	include /etc/nginx/sites-enabled/*;
+}
+
+
+#mail {
+#	# See sample authentication script at:
+#	# http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+#
+#	# auth_http localhost/auth.php;
+#	# pop3_capabilities "TOP" "USER";
+#	# imap_capabilities "IMAP4rev1" "UIDPLUS";
+#
+#	server {
+#		listen     localhost:110;
+#		protocol   pop3;
+#		proxy      on;
+#	}
+#
+#	server {
+#		listen     localhost:143;
+#		protocol   imap;
+#		proxy      on;
+#	}
+#}
+
+
+# sudo cat /etc/letsencrypt/live/nycweather.me/fullchain.pem
+-----BEGIN CERTIFICATE-----
+MIIELjCCAxagAwIBAgISAwQhYB02JJG2pLwBpJDWvNXSMA0GCSqGSIb3DQEBCwUA
+MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD
+EwJSMzAeFw0yNDA1MTkwMjI2MDBaFw0yNDA4MTcwMjI1NTlaMBgxFjAUBgNVBAMT
+DW55Y3dlYXRoZXIubWUwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATm9Il3fyG8
+8A+XPbPP1tUphMGAZkIotXzn0U/kE94931anOuktFTBYZTNFSNRmXglIPDeBIRI5
+j4ell9+qV5vAo4ICITCCAh0wDgYDVR0PAQH/BAQDAgeAMB0GA1UdJQQWMBQGCCsG
+AQUFBwMBBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBTsJdQ0Q7C7
+JrS/T+VZ0mIZC9XENDAfBgNVHSMEGDAWgBQULrMXt1hWy65QCUDmH6+dixTCxjBV
+BggrBgEFBQcBAQRJMEcwIQYIKwYBBQUHMAGGFWh0dHA6Ly9yMy5vLmxlbmNyLm9y
+ZzAiBggrBgEFBQcwAoYWaHR0cDovL3IzLmkubGVuY3Iub3JnLzArBgNVHREEJDAi
+gg1ueWN3ZWF0aGVyLm1lghF3d3cubnljd2VhdGhlci5tZTATBgNVHSAEDDAKMAgG
+BmeBDAECATCCAQMGCisGAQQB1nkCBAIEgfQEgfEA7wB2ABmYEHEJ8NZSLjCA0p4/
+ZLuDbijM+Q9Sju7fzko/FrTKAAABj47igyoAAAQDAEcwRQIhANZPC6tPd630l/h6
+oTnuf7RYWCOvDfHUV3upMJtmZacXAiB6zwW6uT0UXTtj7SyOLkm6ZMed+XDtRvtE
+wVwJhwWTIQB1AEiw42vapkc0D+VqAvqdMOscUgHLVt0sgdm7v6s52IRzAAABj47i
+i4cAAAQDAEYwRAIgWy4mns40VXKt6EHrKbi2klE7Wu0DF6Jyu/xz+aEL4q4CID4M
+p0DE8pObDuxQv9qyMQ2lflbbOAFLJSaRbauTbMJPMA0GCSqGSIb3DQEBCwUAA4IB
+AQCq3mgNaOWo9B8aTMbKfJvPWUyZ/sFCw3MCILXZxD3yHnCW/WmDkwm0VAi+oL3U
+TKkWhZCd+otQzj2m/pnpAjWlLewFhvfEJ6XMUuC4MVObOWNkGF6bORzo0aWpvGp7
+AA7GT/PajFLeUySiRUG2B4rjMt7L3vedY6hfvWMe50CCYW/8Q7owyk1cy2Ua8wFS
+7tkdh9wj9keBJvRETecWjldrO2OEZ4FaWBpJTnVN2GW9uyem5uquwsSE8Af0+27c
+iNzOVys7Lt/OTOl5jbJLy1WgEfhJTxZxBpy0MWMEckcSSeXda1x5cg8SjwC3uh/S
+uVdmf4w0hrDWlCtXWEsyNYRH
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+MIIFFjCCAv6gAwIBAgIRAJErCErPDBinU/bWLiWnX1owDQYJKoZIhvcNAQELBQAw
+TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh
+cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMjAwOTA0MDAwMDAw
+WhcNMjUwOTE1MTYwMDAwWjAyMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNTGV0J3Mg
+RW5jcnlwdDELMAkGA1UEAxMCUjMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+AoIBAQC7AhUozPaglNMPEuyNVZLD+ILxmaZ6QoinXSaqtSu5xUyxr45r+XXIo9cP
+R5QUVTVXjJ6oojkZ9YI8QqlObvU7wy7bjcCwXPNZOOftz2nwWgsbvsCUJCWH+jdx
+sxPnHKzhm+/b5DtFUkWWqcFTzjTIUu61ru2P3mBw4qVUq7ZtDpelQDRrK9O8Zutm
+NHz6a4uPVymZ+DAXXbpyb/uBxa3Shlg9F8fnCbvxK/eG3MHacV3URuPMrSXBiLxg
+Z3Vms/EY96Jc5lP/Ooi2R6X/ExjqmAl3P51T+c8B5fWmcBcUr2Ok/5mzk53cU6cG
+/kiFHaFpriV1uxPMUgP17VGhi9sVAgMBAAGjggEIMIIBBDAOBgNVHQ8BAf8EBAMC
+AYYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMBIGA1UdEwEB/wQIMAYB
+Af8CAQAwHQYDVR0OBBYEFBQusxe3WFbLrlAJQOYfr52LFMLGMB8GA1UdIwQYMBaA
+FHm0WeZ7tuXkAXOACIjIGlj26ZtuMDIGCCsGAQUFBwEBBCYwJDAiBggrBgEFBQcw
+AoYWaHR0cDovL3gxLmkubGVuY3Iub3JnLzAnBgNVHR8EIDAeMBygGqAYhhZodHRw
+Oi8veDEuYy5sZW5jci5vcmcvMCIGA1UdIAQbMBkwCAYGZ4EMAQIBMA0GCysGAQQB
+gt8TAQEBMA0GCSqGSIb3DQEBCwUAA4ICAQCFyk5HPqP3hUSFvNVneLKYY611TR6W
+PTNlclQtgaDqw+34IL9fzLdwALduO/ZelN7kIJ+m74uyA+eitRY8kc607TkC53wl
+ikfmZW4/RvTZ8M6UK+5UzhK8jCdLuMGYL6KvzXGRSgi3yLgjewQtCPkIVz6D2QQz
+CkcheAmCJ8MqyJu5zlzyZMjAvnnAT45tRAxekrsu94sQ4egdRCnbWSDtY7kh+BIm
+lJNXoB1lBMEKIq4QDUOXoRgffuDghje1WrG9ML+Hbisq/yFOGwXD9RiX8F6sw6W4
+avAuvDszue5L3sz85K+EC4Y/wFVDNvZo4TYXao6Z0f+lQKc0t8DQYzk1OXVu8rp2
+yJMC6alLbBfODALZvYH7n7do1AZls4I9d1P4jnkDrQoxB3UqQ9hVl3LEKQ73xF1O
+yK5GhDDX8oVfGKF5u+decIsH4YaTw7mP3GFxJSqv3+0lUFJoi5Lc5da149p90Ids
+hCExroL1+7mryIkXPeFM5TgO9r0rvZaBFOvV2z0gp35Z0+L4WPlbuEjN/lxPFin+
+HlUjr8gRsI3qfJOQFy/9rKIJR0Y/8Omwt/8oTWgy1mdeHmmjk7j1nYsvC9JSQ6Zv
+MldlTTKB3zhThV1+XWYp6rjd5JW1zbVWEkLNxE7GJThEUG3szgBVGP7pSWTUTsqX
+nLRbwHOoq7hHwg==
+-----END CERTIFICATE-----
+
+
+# sudo cat ssl_certificate_key /etc/letsencrypt/live/nycweather.me/privkey.pem
+cat: ssl_certificate_key: No such file or directory
+-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgETVqAYXFHBkKiW1p
+mgb2gU7CsxsiJtTii9b1UGvJgiehRANCAATm9Il3fyG88A+XPbPP1tUphMGAZkIo
+tXzn0U/kE94931anOuktFTBYZTNFSNRmXglIPDeBIRI5j4ell9+qV5vA
+-----END PRIVATE KEY-----
+

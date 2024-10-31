@@ -1,4 +1,4 @@
-package me.nycweather.peppermint.icanhazdadjoke.impl;
+package me.nycweather.peppermint.icanhazdadjoke.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.nycweather.peppermint.icanhazdadjoke.config.WebClientConfig;
@@ -43,7 +43,7 @@ class IHazDadJokeServiceImplTest {
     private WebClient.ResponseSpec responseSpec;
 
     @InjectMocks
-    private IHazDadJokeServiceImpl iHazDadJokeServiceImpl;
+    private IHazDadJokeService iHazDadJokeServiceImpl;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
