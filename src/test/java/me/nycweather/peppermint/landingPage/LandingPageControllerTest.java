@@ -1,5 +1,6 @@
 package me.nycweather.peppermint.landingPage;
 
+import me.nycweather.peppermint.landingPage.controller.LandingPageController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,7 +17,7 @@ class LandingPageControllerTest {
 
     @Test
     void testSayHello() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/hello")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/hello")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Hello, World!"));
