@@ -1,4 +1,4 @@
 FROM openjdk:17-jdk-slim
 WORKDIR /deploy
-COPY target/app.jar
+COPY target/app.jar .
 CMD ["java", "-jar", "app.jar"]

@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: peppermint-backend
+  main:
+    banner-mode: off
+  cloud:
+    config:
+      enabled: false
+  jackson:
+    time-zone: America/New_York
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vector_db
+    username: postgres
+    password: postgres
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o
+      embedding:
+        options:
+          model: text-embedding-3-small
+        enabled: true
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+        initialize-schema: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+#    properties:
+#      hibernate:
+#        format_sql: true
+#    show-sql: true
+##      dialect: org.hibernate.dialect.PostgreSQL95Dialect
+
+
+logging:
+  level:
+    root: INFO
+  #    org:
+  #      hibernate:
+  #        type:
+  #          descriptor:
+  #            sql:
+  #              BasicBinder=TRACE:
+  file:
+    name: /home/github-actions-service-account/logs/app.log
+    path: /home/github-actions-service-account/logs

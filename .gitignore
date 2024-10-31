@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+local_files/
+certs/
+local_docs/
+Docs/
